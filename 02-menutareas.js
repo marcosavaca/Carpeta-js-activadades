@@ -3,6 +3,14 @@ const rl=readline.createInterface({
     input:process.stdin,
     output:process.stdout})
     
+    function control(listaDeTareas) 
+    {
+        if(listaDeTareas.length===0){
+           console.log("Todavia no has creado tareas  \n");
+            return true; 
+        }
+
+    }
     async function pedirDato(rl, mensaje, opcionesValidas, obligatorio) 
     {
         while(true) 
@@ -109,11 +117,14 @@ const rl=readline.createInterface({
 
         for (let i=0;i<tareasFiltradas.length;i++) 
         {
-          console.log(`${i+ 1} ${tareasFiltradas[i].tarea.titulo} \n`);
+            if(listaDeTareas[i] && listaDeTareas[i].titulo)
+                {
+          console.log(`${i+ 1} ${tareasFiltradas[i].titulo} \n`);
+          }
         }
 
         console.log("¿Deseas ver los detalles de alguna? \n");
-        console.log("Introduce el numero de la tarea o 0 para volver \n");
+        await console.log("Introduce el numero de la tarea o 0 para volver \n");
         const indice = Number(await rl.question(">"));
 
         if (indice===0 || isNaN(indice) || indice>listaDeTareas.length) 
@@ -124,13 +135,17 @@ const rl=readline.createInterface({
     }
     async function verTareas(listaDeTareas)
     {
+        if (control(listaDeTareas))
+        {
+         return;
+        }
         console.log("¿Que tareas deseas ver?:\n");
         console.log("[1] Todas \n");
         console.log("[2] Pendientes \n");
         console.log("[3] En curso \n");
         console.log("[4] Terminadas \n");
         console.log("[0] Volver \n");
-        const opcion=Number(await rl.question(">"));
+        let opcion=Number(await rl.question(">"));
         if (opcion === 0) return;
 
         switch(opcion)
@@ -157,18 +172,18 @@ const rl=readline.createInterface({
     async function agregarTarea() 
     {
         console.log("Estas creando una nueva tarea.\n");
-        const titulous=await pedirDato(rl, "1. Título:\n", null, true);
-        const descripcionus= await pedirDato(rl, "2. Descripción:\n", null, false);
-        const estadous=await pedirDato(rl, "3. Estado ([P]endiente/[E]n curso/[T]erminada/[C]ancelada):\n", ["P", "E", "T", "C"]);
-        const vencimiento = await rl.question("Ingrese fecha de vencimiento (AAAA-MM-DD) o presione Enter para omitir:\n");
-        const dificultadus = await pedirDato(rl, "4. Dificultad ([1]/[2]/[3]):\n", ["1", "2", "3"]);
-        const nuevaTarea = {
+        let titulous=await pedirDato(rl, "1. Título:\n", null, true);
+        let descripcionus= await pedirDato(rl, "2. Descripción:\n", null, false);
+        let estadous=await pedirDato(rl, "3. Estado ([P]endiente/[E]n curso/[T]erminada/[C]ancelada):\n", ["P", "E", "T", "C"]);
+        let vencimiento = await rl.question("Ingrese fecha de vencimiento (AAAA-MM-DD) o presione Enter para omitir:\n");
+        let dificultadus = await pedirDato(rl, "4. Dificultad ([1]/[2]/[3]):\n", ["1", "2", "3"]);
+        let nuevaTarea = {
             titulo: titulous,
             descripcion:descripcionus,
             estado: estadous ||"pendiente",
             fechaCreacion: new Date(),
             ultimaEdicion:new Date(),
-            fechaVencimiento: vencimiento.trim() ? new Date(vencimientoInput) : null,
+            fechaVencimiento: vencimiento.trim(),
             dificultad: Number(dificultadus) || 1
         };
         console.log("¡Datos guardados!.\n");
@@ -176,10 +191,13 @@ const rl=readline.createInterface({
 
         return nuevaTarea;
     }
-    async function buscarTareas(listaDeTareas)
+     async function buscarTareas(listaDeTareas)
     {
-        console.log("Ingrese el titulo de la tarea a buscar \n ");
-        let titulo= await rl.question(">");
+        if (control(listaDeTareas))
+        {
+         return;
+        }
+        let titulo= await rl.question("Ingrese el titulo de la tarea a buscar");
         imprimirtarea(listaDeTareas,null,titulo);
 
     }
@@ -199,13 +217,14 @@ const rl=readline.createInterface({
             switch(opcion)
             {
             case 1:
-                verTareas(listaDeTareas);
+                await verTareas(listaDeTareas);
                 break;
             case 2:
-                buscarTareas(listaDeTareas);
+                await buscarTareas(listaDeTareas);
                 break;
             case 3:
-                nuevaTarea=agregarTarea();
+                let nuevaTarea=await agregarTarea();
+                
                 listaDeTareas.push(nuevaTarea);
                 break;
             case 0:
