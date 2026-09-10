@@ -11,7 +11,7 @@ const rl=readline.createInterface({
         }
 
     }
-    async function pedirDato(rl, mensaje, opcionesValidas, obligatorio) 
+    async function pedirDato( mensaje, opcionesValidas, obligatorio) 
     {
         while(true) 
         {
@@ -35,68 +35,113 @@ const rl=readline.createInterface({
             }
         }
     }
+    async function pedirFecha(mensaje) 
+    {
+    while (true) 
+        {
+        const entrada = await rl.question(mensaje);
+        if (entrada==="")
+        { 
+            return ""; // puede ser vacia.
+        }
+        const regex = /^\d{4}-\d{2}-\d{2}$/;
+
+        if (regex.test(entrada)) 
+        {
+            return entrada;
+        }
+        console.log("Formato no valido. Usa el formato AAAA-MM-DD o presione Enter para omitir.\n");
+        }
+    }
+    function mostrarCampo(mensaje,valor) 
+    {
+        if(esvacio(valor))
+        {
+            console.log(`${mensaje}: Sin datos \n`);
+            return;
+        }
+        else
+        {
+        console.log(`${mensaje}: ${valor} \n`);  
+        }
+    }
+    function esvacio(valor)
+    {
+        if(valor===null || valor===undefined || valor.trim()==="")
+        {
+         return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
     async function verDetalleTarea(listaDeTareas,indice)
     {
-        let encontrada=false;
-         for(let i=0;i<listaDeTareas.length;i++)
-            {
-                if(listaDeTareas[i]==indice-1)
-                {
-                    encontrada=true;
-                console.log("Esta es la tarea que elegiste: \n");
-                console.log(`Titulo: ${listaDeTareas[i].titulo} \n`);
-                console.log(`Descripcion: ${listaDeTareas[i].descripcion} \n`);
-                console.log(`Estado: ${listaDeTareas[i].estado} \n`);
-                console.log(`Fecha de creacion: ${listaDeTareas[i].fechaCreacion} \n`);
-                console.log(`Ultima edicion: ${listaDeTareas[i].ultimaEdicion} \n`);
-                console.log(`Fecha de vencimiento: ${listaDeTareas[i].fechaVencimiento} \n`);
-                console.log(`Dificultad: ${listaDeTareas[i].dificultad} \n`);
-                }
-            }
-            if(encontrada)
-            {
-                console.log("Si deseas editarla presione E o 0 para volver. \n");
-                let opcion=await rl.question(">");
-                while(opcion!=0 && opcion!="E")
-                {
-                opcion=await rl.question("Ingrese una opcion valida \n");
-                }
-                if(opcion===0){
-                return; 
-                }
-                console.log(`Estas editando la tarea: ${listaDeTareas[i].titulo}  \n`);
-                console.log("-Si deseas mantener los valores de un atributo, simplemente dejalo en blanco \n");
-                console.log("-Si deseas dejar en blanco un atributo, escribe un espacio. \n");
-                const nuevaDescripcion= await pedirDato(rl, "1. Descripción:\n", null, false);
-                const nuevoEstado=await pedirDato(rl, "2. Estado ([P]endiente/[E]n curso/[T]erminada/[C]ancelada):\n", ["P", "E", "T", "C"]);
-                const nuevaDificultad = await pedirDato(rl, "3. Dificultad ([1]/[2]/[3]):\n", ["1", "2", "3"]);
-                const vencimiento=await rl.question("4. Vencimiento:\n");
-                listaDeTareas[indice-1].descripcion=nuevaDescripcion;
-                listaDeTareas[indice-1].estado=nuevoEstado;
-                listaDeTareas[indice-1].dificultad=nuevaDificultad
-                listaDeTareas[indice-1].fechaVencimiento=vencimiento;
-                console.log("¡Datos guardados!\n");
-                console.log("Presiona cualquier tecla para continuar ...\n");
-            }
+        if (!listaDeTareas[indice-1]) 
+        {
+            console.log("Tarea no encontrada.\n");
+            return;
+        }
+        console.log("Esta es la tarea que elegiste: \n");
+        console.log(`Titulo: ${listaDeTareas[indice-1].titulo} \n`);
+        console.log(`Dificultad: ${listaDeTareas[indice-1].dificultad} \n`);
+        mostrarCampo("Descripcion", listaDeTareas[indice-1].descripcion);
+        console.log(`Estado: ${listaDeTareas[indice-1].estado} \n`);
+        mostrarCampo("Fecha de creacion", listaDeTareas[indice-1].fechaCreacion);
+        console.log(`Ultima edicion: ${listaDeTareas[indice-1].ultimaEdicion} \n`);
+        mostrarCampo("Fecha de vencimiento", listaDeTareas[indice-1].fechaVencimiento);
+        console.log("Si deseas editarla presione E o 0 para volver. \n");
+        let opcion=await rl.question(">");
+        while(opcion!=0 && opcion!="E" && opcion!="e")
+        {
+            opcion=await rl.question("Ingrese una opcion valida \n");
+        }
+        if(opcion===0)
+        {
+         return; 
+        }
+        console.log(`Estas editando la tarea: ${listaDeTareas[indice-1].titulo}  \n`);
+        console.log("-Si deseas mantener los valores de un atributo, simplemente dejalo en blanco \n");
+        console.log("-Si deseas dejar en blanco un atributo, escribe un espacio. \n");
+        // A los atributos que pueden sar vacios se les agrega a opciones validas un espacio: " ".
+        const nuevaDescripcion= await pedirDato( "1. Descripción:\n", null, false);
+        const nuevoEstado=await pedirDato( "3. Estado ([P]endiente/[E]n curso/[T]erminada/[C]ancelada):\n", ["P", "E", "T", "C"," "], true);
+        const nuevaDificultad = await pedirDato( "3. Dificultad ([1]/[2]/[3]):\n", ["1", "2", "3"," "],true);
+        const vencimiento=await pedirFecha("Ingrese fecha de vencimiento (AAAA-MM-DD)\n");
+        listaDeTareas[indice-1].descripcion=nuevaDescripcion;
+        listaDeTareas[indice-1].estado=nuevoEstado;
+        listaDeTareas[indice-1].dificultad=nuevaDificultad
+        listaDeTareas[indice-1].fechaVencimiento=vencimiento;
+        listaDeTareas[indice-1].ultimaEdicion=new Date();
+        console.log("¡Datos guardados!\n");
+        await rl.question("Presiona cualquier tecla para continuar ...\n");
+            
     }
+
+
+
     async function imprimirtarea(listaDeTareas,condicion,buscar) 
     {
         const tareasFiltradas = [];
 
         for (let i=0; i<listaDeTareas.length; i++) 
         {
-            if(buscar) 
+            if(buscar) //Si estamos buscando entonces en la variable buscar se tiene el titulo de la tarea a buscar.
             {
               if(listaDeTareas[i].titulo.toLowerCase().includes(buscar.toLowerCase())) 
                 {
+                    //añadimos a la tarea filtrada.
                  tareasFiltradas.push(listaDeTareas[i]);
                 }
             } 
             else 
             {
+                // Si no estamso buscando y estamos viendo todas las tareas ya sea todas(null),Pendiente,En curso, Finalizadas:
               if(listaDeTareas[i].estado===condicion || condicion===undefined) 
                 {
+                    //añadimso todas las tareas solo que cumpla la condicion o todas.
                     tareasFiltradas.push(listaDeTareas[i]);
                 }
             }
@@ -106,6 +151,7 @@ const rl=readline.createInterface({
          console.log("No hay tareas relacionadas a la busqueda\n");
             return;
         }
+        //Si es buscar o imprimir todas las tareas o por condicion cambia el mensaje:
         if(buscar) 
         {
          console.log("Estas son las tareas relacionadas!: \n");
@@ -117,22 +163,28 @@ const rl=readline.createInterface({
 
         for (let i=0;i<tareasFiltradas.length;i++) 
         {
-            if(listaDeTareas[i] && listaDeTareas[i].titulo)
-                {
-          console.log(`${i+ 1} ${tareasFiltradas[i].titulo} \n`);
-          }
+            if(listaDeTareas[i] && tareasFiltradas[i].titulo)
+            {
+            console.log(`${[i+ 1]} ${tareasFiltradas[i].titulo} \n`);
+            }
         }
 
         console.log("¿Deseas ver los detalles de alguna? \n");
-        await console.log("Introduce el numero de la tarea o 0 para volver \n");
-        const indice = Number(await rl.question(">"));
-
-        if (indice===0 || isNaN(indice) || indice>listaDeTareas.length) 
+        console.log("Introduce el numero de la tarea o 0 para volver \n");
+        const entrada = (await rl.question("> ")).trim();
+        const indice = Number(entrada);
+        if(entrada===""){
+            indice=0;
+        }
+        if (indice===0 || isNaN(indice) || indice>tareasFiltradas.length) 
         {
          return;
         }
-        verDetalleTarea(listaDeTareas, indice);
+    
+        await verDetalleTarea(listaDeTareas, indice);
     }
+
+
     async function verTareas(listaDeTareas)
     {
         if (control(listaDeTareas))
@@ -151,16 +203,16 @@ const rl=readline.createInterface({
         switch(opcion)
         {
             case 1:
-            imprimirtarea(listaDeTareas);
+                await imprimirtarea(listaDeTareas);
                 break;
             case 2:
-                imprimirtarea(listaDeTareas,"P");
+                await imprimirtarea(listaDeTareas,"P");
                 break;
             case 3:
-                imprimirtarea(listaDeTareas,"E");
+                await imprimirtarea(listaDeTareas,"E");
                 break;
             case 4:
-                imprimirtarea(listaDeTareas,"T");
+                await imprimirtarea(listaDeTareas,"T");
                 break;
                 
             default:
@@ -172,33 +224,62 @@ const rl=readline.createInterface({
     async function agregarTarea() 
     {
         console.log("Estas creando una nueva tarea.\n");
-        let titulous=await pedirDato(rl, "1. Título:\n", null, true);
-        let descripcionus= await pedirDato(rl, "2. Descripción:\n", null, false);
-        let estadous=await pedirDato(rl, "3. Estado ([P]endiente/[E]n curso/[T]erminada/[C]ancelada):\n", ["P", "E", "T", "C"]);
-        let vencimiento = await rl.question("Ingrese fecha de vencimiento (AAAA-MM-DD) o presione Enter para omitir:\n");
-        let dificultadus = await pedirDato(rl, "4. Dificultad ([1]/[2]/[3]):\n", ["1", "2", "3"]);
+        // Si tiene opciones validas y tambien es obligatorio entonces puede ser vacio.
+        let titulous=await pedirDato( "1. Título:\n", null, true);
+        let descripcionus= await pedirDato("2. Descripción:\n", null, false);
+        //Los que no pueden ser vascios y tienen valores por defecto a opciones validas se les coloca "".
+        let estadous=await pedirDato( "3. Estado ([P]endiente/[E]n curso/[T]erminada/[C]ancelada):\n", ["P", "E", "T", "C",""], true);
+        let vencimiento = await pedirFecha("Ingrese fecha de vencimiento (AAAA-MM-DD) o presione Enter para omitir:\n");
+        let dificultadus = await pedirDato( "4. Dificultad ([1]/[2]/[3]):\n", ["1", "2", "3",""],true);
+        let fechaCreacionus = await pedirDato("¿Desea agregar fecha de creación? [S]í / [N]o:\n", ["S", "N"], true);
+        let ultimaEdicionus = await pedirDato("¿Desea agregar última edición? [S]í / [N]o:\n", ["S", "N"], true);
+         // Conclusión de fechas: Si eligió 'S', asigna Date(), de lo contrario null
+          let ultimaEdicionFinal,fechaCreacionFinal;
+        if(fechaCreacionus === "S")
+        { 
+          fechaCreacionFinal =new Date();
+
+        } 
+        else
+        {
+            fechaCreacionFinal=null;
+        }
+        if(ultimaEdicionus === "S")
+        { 
+          ultimaEdicionFinal =new Date()
+
+        } 
+        else
+        {
+            ultimaEdicionFinal=null;
+        }
+    
         let nuevaTarea = {
             titulo: titulous,
             descripcion:descripcionus,
             estado: estadous ||"pendiente",
-            fechaCreacion: new Date(),
-            ultimaEdicion:new Date(),
-            fechaVencimiento: vencimiento.trim(),
+            fechaCreacion: fechaCreacionFinal,
+            ultimaEdicion:ultimaEdicionFinal,
+            fechaVencimiento: vencimiento,
             dificultad: Number(dificultadus) || 1
         };
         console.log("¡Datos guardados!.\n");
-        let tecla=await rl.question("Presione cualquier tecla para continuar... \n");
+        await rl.question("Presione cualquier tecla para continuar... \n");
 
         return nuevaTarea;
     }
-     async function buscarTareas(listaDeTareas)
+
+
+     
+    async function buscarTareas(listaDeTareas)
     {
         if (control(listaDeTareas))
         {
          return;
         }
-        let titulo= await rl.question("Ingrese el titulo de la tarea a buscar");
-        imprimirtarea(listaDeTareas,null,titulo);
+        let titulo= await rl.question("Ingrese el titulo de la tarea a buscar \n");
+        // La condicion es null ya que no estamos imprimiendo todas las tareas o por condicion solo buscamos:
+        await imprimirtarea(listaDeTareas,null,titulo);
 
     }
     async function menu()
