@@ -35,16 +35,21 @@ const rl=readline.createInterface({
             }
         }
     }
-    async function pedirFecha(mensaje) 
+    async function pedirFecha(mensaje,editar) 
     {
     while (true) 
         {
         const entrada = await rl.question(mensaje);
         if (entrada==="")
         { 
-            return ""; // puede ser vacia.
+            return ""; // puede ser vacia, porque por defecto colocamos fecha creacion.
         }
+        if (entrada.trim() === "" && editar) //espacio entonces vaciamos al editar 
+        { 
+         return " "; 
+        } 
         const regex = /^\d{4}-\d{2}-\d{2}$/;
+
 
         if (regex.test(entrada)) 
         {
@@ -52,6 +57,19 @@ const rl=readline.createInterface({
         }
         console.log("Formato no valido. Usa el formato AAAA-MM-DD o presione Enter para omitir.\n");
         }
+    }
+    function resolverEdicion(entrada, valorAnterior) 
+    {
+      // mantener
+        if (entrada === "")
+        { 
+        return valorAnterior;
+        }
+        //vaciar:
+        if (entrada.trim() === ""){
+        return "";
+        }          
+        return entrada;// valor nuevo
     }
     function mostrarCampo(mensaje,valor) 
     {
@@ -67,14 +85,20 @@ const rl=readline.createInterface({
     }
     function esvacio(valor)
     {
-        if(valor===null || valor===undefined || valor.trim()==="")
+        if(valor===null || valor===undefined)
         {
          return true;
         }
-        else
-        {
-            return false;
+        if (valor instanceof Date)  //un fecha no se deja vacia y por default se poone la fecha de creacion.
+        {  
+            return false
         }
+        if(typeof valor === "string")
+        {
+            return valor.trim() === "";  // si es un string y espacio en blanco entonces es vacio.
+        }
+        // si no cumple que sea nulo o stirng y espacio en blanco entonces es falso.
+        return false;
     }
 
     async function verDetalleTarea(listaDeTareas,indice)
@@ -103,17 +127,26 @@ const rl=readline.createInterface({
          return; 
         }
         console.log(`Estas editando la tarea: ${listaDeTareas[indice-1].titulo}  \n`);
-        console.log("-Si deseas mantener los valores de un atributo, simplemente dejalo en blanco \n");
+        console.log("-Si deseas mantener los valores de un atributo, simplemente dejalo en blanco (no espacio) \n");
         console.log("-Si deseas dejar en blanco un atributo, escribe un espacio. \n");
         // A los atributos que pueden sar vacios se les agrega a opciones validas un espacio: " ".
         const nuevaDescripcion= await pedirDato( "1. Descripción:\n", null, false);
-        const nuevoEstado=await pedirDato( "3. Estado ([P]endiente/[E]n curso/[T]erminada/[C]ancelada):\n", ["P", "E", "T", "C"," "], true);
-        const nuevaDificultad = await pedirDato( "3. Dificultad ([1]/[2]/[3]):\n", ["1", "2", "3"," "],true);
-        const vencimiento=await pedirFecha("Ingrese fecha de vencimiento (AAAA-MM-DD)\n");
-        listaDeTareas[indice-1].descripcion=nuevaDescripcion;
-        listaDeTareas[indice-1].estado=nuevoEstado;
-        listaDeTareas[indice-1].dificultad=nuevaDificultad
-        listaDeTareas[indice-1].fechaVencimiento=vencimiento;
+        const nuevoEstado=await pedirDato( "3. Estado ([P]endiente/[E]n curso/[T]erminada/[C]ancelada):\n", ["P", "E", "T", "C",""], true);
+        const nuevaDificultad = await pedirDato( "3. Dificultad ([1]/[2]/[3]):\n", ["1", "2", "3",""],true);
+        const vencimiento=await pedirFecha("Ingrese fecha de vencimiento (AAAA-MM-DD)\n", true);
+        //vaciableS:
+        listaDeTareas[indice-1].descripcion= resolverEdicion(nuevaDescripcion,listaDeTareas[indice-1].descripcion);
+        listaDeTareas[indice-1].fechaVencimiento = resolverEdicion(vencimiento,listaDeTareas[indice-1].fechaVencimiento);     
+        // no vaciables:
+        if (nuevoEstado !== "")
+        {     
+         listaDeTareas[indice-1].estado= nuevoEstado;
+
+        }
+        if (nuevaDificultad !== "")
+        { 
+        listaDeTareas[indice-1].dificultad = Number(nuevaDificultad);
+        }
         listaDeTareas[indice-1].ultimaEdicion=new Date();
         console.log("¡Datos guardados!\n");
         await rl.question("Presiona cualquier tecla para continuar ...\n");
@@ -173,15 +206,12 @@ const rl=readline.createInterface({
         console.log("Introduce el numero de la tarea o 0 para volver \n");
         const entrada = (await rl.question("> ")).trim();
         const indice = Number(entrada);
-        if(entrada===""){
-            indice=0;
-        }
         if (indice===0 || isNaN(indice) || indice>tareasFiltradas.length) 
         {
-         return;
+         return; //isNaN es true si no es numero auqnue parezca lo contrario. isNaN= Is not a number.
         }
     
-        await verDetalleTarea(listaDeTareas, indice);
+        await verDetalleTarea(tareasFiltradas, indice);
     }
 
 
@@ -198,7 +228,10 @@ const rl=readline.createInterface({
         console.log("[4] Terminadas \n");
         console.log("[0] Volver \n");
         let opcion=Number(await rl.question(">"));
-        if (opcion === 0) return;
+        if (opcion === 0)
+        { 
+        return;
+        }
 
         switch(opcion)
         {
@@ -257,7 +290,7 @@ const rl=readline.createInterface({
         let nuevaTarea = {
             titulo: titulous,
             descripcion:descripcionus,
-            estado: estadous ||"pendiente",
+            estado: estadous ||"P",
             fechaCreacion: fechaCreacionFinal,
             ultimaEdicion:ultimaEdicionFinal,
             fechaVencimiento: vencimiento,
