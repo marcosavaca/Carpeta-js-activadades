@@ -131,8 +131,8 @@ const rl=readline.createInterface({
         console.log("-Si deseas dejar en blanco un atributo, escribe un espacio. \n");
         // A los atributos que pueden sar vacios se les agrega a opciones validas un espacio: " ".
         const nuevaDescripcion= await pedirDato( "1. Descripción:\n", null, false);
-        const nuevoEstado=await pedirDato( "3. Estado ([P]endiente/[E]n curso/[T]erminada/[C]ancelada):\n", ["P", "E", "T", "C",""], true);
-        const nuevaDificultad = await pedirDato( "3. Dificultad ([1]/[2]/[3]):\n", ["1", "2", "3",""],true);
+        const nuevoEstado=await pedirDato( "3. Estado ([P]endiente/[E]n curso/[T]erminada/[C]ancelada) o dejalo en blanco para mantener(no espacio) \n", ["P", "E", "T", "C",""], true);
+        const nuevaDificultad = await pedirDato( "3. Dificultad ([1]/[2]/[3]) o dejalo en blanco para mantener(no espacio) \n", ["1", "2", "3",""],true);
         const vencimiento=await pedirFecha("Ingrese fecha de vencimiento (AAAA-MM-DD)\n", true);
         //vaciableS:
         listaDeTareas[indice-1].descripcion= resolverEdicion(nuevaDescripcion,listaDeTareas[indice-1].descripcion);
