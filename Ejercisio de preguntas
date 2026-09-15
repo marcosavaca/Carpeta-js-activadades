@@ -1,0 +1,29 @@
+JavaScript Parte A: 
+Generalización simbólica(reglas escritas del lenguaje): Se debe usar {} para estructuras de control y funciones  como también ";" al final de cada línea. Se separa el código con bloques reutilizables mediante funciones. 
+
+Creencias de los profesionales lo que se cree mejor: No requiere de dependencias para ejecutar el código y se destaca la simplicidad ya que sigue el estilo del lenguaje C.
+
+Valores: Los creadores valoran que sea un lenguaje de tipado dinámico y ejecución interpretada es decir no es como java o c que se requiere un compilador. También la tolerancia de fallos del código por sintaxis o tipo de dato incorrecto.
+
+Problemas que se resuelven más fácilmente: Está pensado para validación de formularios e interactividad con el usuario sobre el DOM es decir el objeto completo de las páginas webs.
+ Parte B:
+¿Tiene una sintaxis y una semántica bien definida? ¿Existe documentación oficial?
+Rta: Si, la sintaxis y semántica están bien definidas, patentadas y tienen documentación oficial.
+
+¿Es posible comprobar el código producido en ese lenguaje?
+Rta: Se puede comprobar en tiempo de ejecución ya que es interpretado, es decir no tiene un compilador que analice todo el código antes de ejecutar si no que va línea por línea ejecutando en tiempo real. 
+
+¿Es confiable?
+Rta: Es algo confiable ya que tiene un sistema de excepciones el try.. catch pero el tipado es dinámico y puede tolerar algunos errores.
+
+¿Es ortogonal?
+No tanto, ya que existen algunas reglas que se aplican de manera distinta dependiendo el caso como por ejemplo el símbolo “+” cambia su comportamiento según el contexto: concatena strings: 5 + "5" Resultado: "55"  y también realiza suma:  5+5=10.
+
+¿Cuáles son sus características de consistencia y uniformidad?
+Hereda uniformidad de sintaxis del lenguaje C como las llaves y paréntesis pero tiene dos diferentes forma de comparar: ==,=== y también en valores nulos: null y undefined.
+
+¿Es extensible? ¿Hay subconjuntos de ese lenguaje?
+Sí, es extensible ya que permite la inclusión de módulos y librerías externas.Sobre los subconjuntos existen bien definidos como JSON o Typescript.
+
+¿Es transportable?
+Sí, es  transportable ya que el código JavaScript es interpretado se puede ejecutar en prácticamente cualquier navegador web
